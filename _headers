@@ -1,0 +1,13 @@
+# HTMLは常に最新の内容を取得する
+/
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/index.html
+  Cache-Control: no-cache, no-store, must-revalidate
+
+# 同じURLの静的ファイルも更新を確認する
+/app.js
+  Cache-Control: no-cache, must-revalidate
+
+/styles.css
+  Cache-Control: no-cache, must-revalidate
