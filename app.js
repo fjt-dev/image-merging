@@ -2,7 +2,14 @@ const $ = (selector) => document.querySelector(selector);
 const state = { items: [], blend: 0, heightMode: 'max', seams: false };
 const preview = $('#previewCanvas');
 const ctx = preview.getContext('2d');
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
+  || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 let renderTimer;
+
+if (isIOS) {
+  $('#saveBtn').textContent = '写真Appに保存';
+  $('#saveHint').textContent = '共有メニューで「画像を保存」を選択してください';
+}
 
 function notify(message) {
   const toast = $('#toast');
@@ -343,13 +350,40 @@ $('#blendMinus').addEventListener('click', () => setBlend(state.blend - 1));
 $('#blendPlus').addEventListener('click', () => setBlend(state.blend + 1));
 $('#seamToggle').addEventListener('change', event => { state.seams = event.target.checked; render(); });
 document.querySelectorAll('[name="heightMode"]').forEach(input => input.addEventListener('change', event => { state.heightMode = event.target.value; render(); }));
-$('#saveBtn').addEventListener('click', () => {
-  render();
-  setTimeout(() => preview.toBlob(blob => {
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob); link.download = 'integrated-illustration.png'; link.click();
-    setTimeout(() => URL.revokeObjectURL(link.href), 1000);
-    notify('PNGを保存しました');
-  }, 'image/png'), 60);
+function canvasToPngFile(canvas) {
+  const dataUrl = canvas.toDataURL('image/png');
+  const binary = atob(dataUrl.slice(dataUrl.indexOf(',') + 1));
+  const bytes = new Uint8Array(binary.length);
+  for (let index = 0; index < binary.length; index++) bytes[index] = binary.charCodeAt(index);
+  return new File([bytes], 'integrated-illustration.png', { type: 'image/png' });
+}
+
+function downloadPng(file) {
+  const link = document.createElement('a');
+  const url = URL.createObjectURL(file);
+  link.href = url;
+  link.download = file.name;
+  document.body.append(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  notify('PNGを保存しました');
+}
+
+$('#saveBtn').addEventListener('click', async () => {
+  const file = canvasToPngFile(preview);
+  const shareData = { files: [file] };
+
+  if (isIOS && navigator.share && navigator.canShare?.(shareData)) {
+    notify('「画像を保存」を選択してください');
+    try {
+      await navigator.share(shareData);
+      return;
+    } catch (error) {
+      if (error.name === 'AbortError') return;
+    }
+  }
+
+  downloadPng(file);
 });
 setBlend(0);

@@ -38,7 +38,7 @@ main { grid-column: 1; min-width: 0; padding: 48px 32px 64px; }
 .dropzone { min-height: 160px; padding: 32px; display: flex; justify-content: center; align-items: center; gap: 20px; border: 1.5px dashed #9a9a9a; border-radius: 8px; background: var(--white); text-align: center; cursor: pointer; transition: border-color .15s, background .15s; }
 .dropzone:hover, .dropzone.drag { border-color: var(--accent); background: #fbfdff; }
 .dropzone input { position: absolute; width: 1px; height: 1px; opacity: 0; }
-.upload-symbol { flex: 0 0 42px; width: 42px; height: 42px; display: grid; place-items: center; border-bottom: 2px solid var(--black); color: var(--black); font-size: 34px; font-weight: 300; line-height: 1; }
+.upload-symbol { width: 42px; height: 42px; fill: none; stroke: var(--black); stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
 .drop-copy { font-size: 15px; font-weight: 400; }
 .drop-copy strong { color: var(--accent); font-weight: 600; text-decoration: underline; text-underline-offset: 4px; }
 .upload-help { margin: 12px 0 0; font: 12px ui-monospace, SFMono-Regular, monospace; letter-spacing: .03em; }
@@ -119,11 +119,11 @@ main { grid-column: 1; min-width: 0; padding: 48px 32px 64px; }
   .breadcrumb span, .breadcrumb b, .privacy { display: none; }
   .breadcrumb strong { font-size: 13px; }
   main { padding: 20px 12px 36px; }
-  .empty-view { width: 100%; margin: 8px auto; padding: 20px 14px; border-radius: 10px; }
+  .empty-view { margin: 14px auto; padding: 24px 16px; border-radius: 12px; }
   .upload-label { font-size: 16px; }
-  .dropzone { width: 100%; min-height: 118px; padding: 16px 12px; flex-direction: column; gap: 8px; border-radius: 8px; }
-  .upload-symbol { flex-basis: 30px; width: 30px; height: 30px; font-size: 26px; }
-  .drop-copy { max-width: 290px; font-size: 14px; line-height: 1.6; }
+  .dropzone { min-height: 150px; padding: 20px 14px; flex-direction: column; gap: 10px; border-radius: 12px; }
+  .upload-symbol { width: 34px; height: 34px; }
+  .drop-copy { font-size: 15px; line-height: 1.55; }
   .upload-help { margin-top: 8px; font-size: 11px; line-height: 1.6; }
   .workspace-head { margin-bottom: 16px; }
   .workspace-head h1 { font-size: 26px; }
