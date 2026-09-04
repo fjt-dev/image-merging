@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="横方向に分割されたイラストを自動で並べ直し、元の1枚へ復元" />
+  <title>分割イラストを復元</title>
+  <link rel="stylesheet" href="styles.css?v=20260904-2" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="breadcrumb"><strong>分割イラストを復元</strong></div>
+    <span class="privacy">画像は端末内だけで処理</span>
+  </header>
+
+  <main>
+    <section id="emptyView" class="empty-view">
+      <div class="upload-field">
+        <div class="upload-label">画像ファイル <span aria-hidden="true">*</span></div>
+        <label class="dropzone" id="dropzone">
+          <input id="fileInput" type="file" accept="image/png,image/jpeg,image/webp" multiple />
+          <span class="upload-symbol" aria-hidden="true">↑</span>
+          <span class="drop-copy">分割画像をまとめてドロップ、または <strong>ファイルを選択</strong></span>
+        </label>
+        <p class="upload-help">2〜4枚を自動判定 ・ PNG / JPEG / WebP ・ 各20MBまで</p>
+      </div>
+      <p id="uploadError" class="error" role="alert"></p>
+    </section>
+
+    <section id="editorView" class="editor-view" hidden>
+      <div class="workspace-head">
+        <button id="replaceBtn">別の画像を並べ替える</button>
+      </div>
+
+      <div class="workspace">
+        <aside class="panel controls">
+          <section class="order-area">
+            <div class="order-heading">
+              <h2>並び順</h2>
+              <button id="autoOrderBtn" type="button">自動で並べ替え (Beta)</button>
+            </div>
+            <p>左から右の順番です。ドラッグして移動できます。</p>
+            <div id="imageList" class="image-list"></div>
+            <p id="autoOrderStatus" class="auto-order-status" aria-live="polite"></p>
+          </section>
+
+          <details class="advanced-settings">
+            <summary>詳細設定</summary>
+            <section>
+              <h2>高さの合わせ方</h2>
+              <label><input type="radio" name="heightMode" value="max" checked /> 最大高さに合わせる</label>
+              <label><input type="radio" name="heightMode" value="min" /> 最小高さに合わせる</label>
+            </section>
+
+            <section>
+              <h2>境界ブレンド</h2>
+              <label class="range-label"><span>左右に重ねる幅</span><output id="blendValue">0 px</output></label>
+              <div class="blend-control">
+                <button id="blendMinus" type="button" aria-label="ブレンド幅を1ピクセル減らす">−</button>
+                <input id="blendRange" type="range" min="0" max="120" value="0" />
+                <button id="blendPlus" type="button" aria-label="ブレンド幅を1ピクセル増やす">＋</button>
+              </div>
+              <label><input id="seamToggle" type="checkbox" /> 境界ガイドを表示</label>
+            </section>
+          </details>
+        </aside>
+
+        <section class="panel preview-panel">
+          <div class="preview-head">
+            <h2>プレビュー</h2>
+            <span id="sizeLabel">—</span>
+          </div>
+          <div class="canvas-stage"><canvas id="previewCanvas"></canvas></div>
+          <div class="action-row">
+            <span>分割画像から推定した順番で1枚に復元します</span>
+            <button id="saveBtn" class="primary-btn">復元画像を保存</button>
+          </div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="app.js?v=20260904-2"></script>
+</body>
+</html>
