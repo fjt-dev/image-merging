@@ -115,9 +115,11 @@ main { grid-column: 1; min-width: 0; padding: 48px 32px 64px; }
   .toast { left: 50%; }
 }
 @media (max-width: 560px) {
-  .topbar { padding: 0 13px; }
-  .breadcrumb span, .breadcrumb b, .privacy { display: none; }
-  .breadcrumb strong { font-size: 13px; }
+  .topbar { gap: 8px; padding: 0 13px; }
+  .breadcrumb { min-width: 0; }
+  .breadcrumb span, .breadcrumb b { display: none; }
+  .breadcrumb strong { font-size: 12px; white-space: nowrap; }
+  .privacy { flex: 0 0 auto; padding: 5px 8px; font-size: 10px; line-height: 1.4; white-space: nowrap; }
   main { padding: 20px 12px 36px; }
   .empty-view { margin: 14px auto; padding: 24px 16px; border-radius: 12px; }
   .upload-label { font-size: 16px; }

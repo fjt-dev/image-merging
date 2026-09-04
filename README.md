@@ -8,7 +8,7 @@
 
 ## Cloudflare Pagesへの公開
 
-`_headers` も含めて公開してください。HTMLは端末に保存せず、CSSとJavaScriptは更新の有無を毎回確認する設定です。CSSまたはJavaScriptを更新したときは、`index.html` 内の `?v=20260904-1` を新しい番号へ変更すると、すでに端末へ残っている古いファイルを確実に回避できます。
+`_headers` も含めて公開してください。HTMLは端末に保存せず、CSSとJavaScriptは更新の有無を毎回確認する設定です。CSSまたはJavaScriptを更新したときは、`index.html` 内の `?v=20260904-2` を新しい番号へ変更すると、すでに端末へ残っている古いファイルを確実に回避できます。
 
 ## MVPの機能
 
