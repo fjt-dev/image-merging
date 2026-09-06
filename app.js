@@ -232,8 +232,9 @@ function permutations(items) {
 function autoOrder() {
   if (state.items.length < 2 || state.items.length > 4) return;
   const button = $('#autoOrderBtn');
+  const label = $('#autoOrderLabel');
   button.disabled = true;
-  button.textContent = '解析中… (Beta)';
+  label.textContent = '解析中…';
   requestAnimationFrame(() => setTimeout(() => {
     const byNumber = numberedOrder(state.items);
     if (byNumber) {
@@ -241,7 +242,7 @@ function autoOrder() {
       buildList(); render();
       $('#autoOrderStatus').textContent = '自動で並べ替えました。';
       button.disabled = false;
-      button.textContent = '自動で並べ替え (Beta)';
+      label.textContent = '自動で並べ替え';
       return;
     }
     const edges = new Map(state.items.map(item => [item.id, {
@@ -260,7 +261,7 @@ function autoOrder() {
     buildList(); render();
     $('#autoOrderStatus').textContent = '自動で並べ替えました。';
     button.disabled = false;
-    button.textContent = '自動で並べ替え (Beta)';
+    label.textContent = '自動で並べ替え';
   }, 20));
 }
 
