@@ -10,6 +10,12 @@
 
 `_headers` も含めて公開してください。HTMLは端末に保存せず、CSSとJavaScriptは更新の有無を毎回確認する設定です。CSSまたはJavaScriptを更新したときは、`index.html` 内の `?v=20260904-2` を新しい番号へ変更すると、すでに端末へ残っている古いファイルを確実に回避できます。
 
+### Twitter / Xでのリンクプレビュー
+
+`index.html` にOGPとTwitter Cardのタイトル・説明文を設定しています。カード形式は `summary` で、画像用メタタグは指定していません。説明文を変更する際は `description`、`og:description`、`twitter:description` を同じ内容に更新してください。
+
+公開後は、GitHubのリポジトリURLではなく、Webサイトの公開URLを共有してください。カードの表示や説明文の省略はTwitter / X側に依存します。メタ情報の設定だけで、すべての画面での文字のみの表示を保証するものではありません。
+
 ## MVPの機能
 
 - PNG / JPEG / WebP画像2〜4枚の同時アップロード
