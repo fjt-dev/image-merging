@@ -49,6 +49,7 @@ async function loadFiles(fileList) {
     })));
     $('#emptyView').hidden = true;
     $('#editorView').hidden = false;
+    document.body.classList.remove('upload-screen');
     buildList();
     render();
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -329,6 +330,7 @@ function render() {
 }
 
 $('#fileInput').addEventListener('change', event => loadFiles(event.target.files));
+$('#dropzone').addEventListener('click', () => $('#fileInput').click());
 $('#autoOrderBtn').addEventListener('click', autoOrder);
 $('#replaceBtn').addEventListener('click', () => { $('#fileInput').value = ''; $('#fileInput').click(); });
 const dropzone = $('#dropzone');

@@ -3,30 +3,39 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="横方向に分割されたイラストを自動で並べ直し、元の1枚へ復元" />
-  <title>分割イラストを復元</title>
-  <link rel="stylesheet" href="styles.css?v=20260906-2" />
+  <meta name="description" content="2〜4枚の分割画像を、自動で並べ替えて1枚に統合できます。" />
+  <title>分割画像統合ツール</title>
+  <link rel="stylesheet" href="styles.css?v=20260923-11" />
 </head>
-<body>
+<body class="upload-screen">
   <header class="topbar">
-    <div class="breadcrumb"><strong>分割イラストを復元</strong></div>
-    <span class="privacy">画像は端末内だけで処理</span>
+    <div class="breadcrumb"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><strong>分割画像統合ツール</strong></div>
   </header>
 
   <main>
     <section id="emptyView" class="empty-view">
-      <div class="upload-field">
-        <div class="upload-label">画像ファイル <span aria-hidden="true">*</span></div>
-        <label class="dropzone" id="dropzone">
-          <input id="fileInput" type="file" accept="image/png,image/jpeg,image/webp" multiple />
-          <svg class="upload-symbol" viewBox="0 0 32 32" aria-hidden="true">
-            <path d="M16 22V5M9.5 11.5 16 5l6.5 6.5M7 27h18" />
-          </svg>
-          <span class="drop-copy">分割画像をまとめてドロップ、または <strong>ファイルを選択</strong></span>
-        </label>
-        <p class="upload-help">2〜4枚を自動判定 ・ PNG / JPEG / WebP ・ 各20MBまで</p>
+      <div class="landing-intro">
+        <h1>分割画像統合ツール</h1>
+        <p class="hero-copy">2〜4枚の分割画像を選び、「自動で並べ替え」で順番を整えて1枚に統合できます。</p>
       </div>
-      <p id="uploadError" class="error" role="alert"></p>
+      <div class="upload-card">
+        <div class="upload-field">
+          <input id="fileInput" type="file" accept="image/png,image/jpeg,image/webp" multiple hidden />
+          <p class="local-processing"><span aria-hidden="true">●</span>画像は端末内だけで処理</p>
+          <button class="dropzone" id="dropzone" type="button" aria-describedby="uploadHelp">
+            <svg class="drop-icon" viewBox="0 0 80 80" aria-hidden="true">
+              <path d="M17 23v37a8 8 0 0 0 8 8h38" />
+              <rect x="25" y="12" width="45" height="45" rx="7" />
+              <circle cx="39" cy="26" r="3.5" />
+              <path d="m31 49 12-14 8 9 6-7 8 12" />
+            </svg>
+            <strong>画像を追加</strong>
+            <span>またはドラッグ＆ドロップ</span>
+          </button>
+          <p id="uploadHelp" class="upload-help">PNG・JPEG・WebP ／ 1枚20MBまで</p>
+        </div>
+        <p id="uploadError" class="error" role="alert"></p>
+      </div>
     </section>
 
     <section id="editorView" class="editor-view" hidden>
@@ -92,6 +101,6 @@
   <footer class="site-footer">(c) 2026 fjtd</footer>
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
-  <script src="app.js?v=20260906-1"></script>
+  <script src="app.js?v=20260923-5"></script>
 </body>
 </html>
