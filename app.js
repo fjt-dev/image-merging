@@ -47,12 +47,16 @@ async function loadFiles(fileList) {
       image.onerror = () => { URL.revokeObjectURL(url); reject(new Error('load')); };
       image.src = url;
     })));
-    $('#emptyView').hidden = true;
-    $('#editorView').hidden = false;
-    document.body.classList.remove('upload-screen');
+    document.body.classList.add('has-images');
+    $('#dropzoneTitle').textContent = '別の画像を選ぶ';
+    $('#autoOrderBtn').disabled = false;
+    $('#autoOrderBtn').classList.remove('is-loading');
+    $('#autoOrderStatus').textContent = '';
     buildList();
     render();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (window.matchMedia('(max-width: 960px)').matches) {
+      $('#controlsPanel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   } catch {
     error.textContent = '読み込めない画像が含まれています。';
   }
@@ -235,6 +239,7 @@ function autoOrder() {
   const button = $('#autoOrderBtn');
   const label = $('#autoOrderLabel');
   button.disabled = true;
+  button.classList.add('is-loading');
   label.textContent = '解析中…';
   requestAnimationFrame(() => setTimeout(() => {
     const byNumber = numberedOrder(state.items);
@@ -243,6 +248,7 @@ function autoOrder() {
       buildList(); render();
       $('#autoOrderStatus').textContent = '自動で並べ替えました。';
       button.disabled = false;
+      button.classList.remove('is-loading');
       label.textContent = '自動で並べ替え';
       return;
     }
@@ -262,6 +268,7 @@ function autoOrder() {
     buildList(); render();
     $('#autoOrderStatus').textContent = '自動で並べ替えました。';
     button.disabled = false;
+    button.classList.remove('is-loading');
     label.textContent = '自動で並べ替え';
   }, 20));
 }
@@ -329,10 +336,13 @@ function render() {
   }, 30);
 }
 
-$('#fileInput').addEventListener('change', event => loadFiles(event.target.files));
+$('#fileInput').addEventListener('change', event => {
+  const files = [...event.target.files];
+  event.target.value = '';
+  if (files.length) loadFiles(files);
+});
 $('#dropzone').addEventListener('click', () => $('#fileInput').click());
 $('#autoOrderBtn').addEventListener('click', autoOrder);
-$('#replaceBtn').addEventListener('click', () => { $('#fileInput').value = ''; $('#fileInput').click(); });
 const dropzone = $('#dropzone');
 ['dragenter', 'dragover'].forEach(name => dropzone.addEventListener(name, event => { event.preventDefault(); dropzone.classList.add('drag'); }));
 ['dragleave', 'drop'].forEach(name => dropzone.addEventListener(name, event => { event.preventDefault(); dropzone.classList.remove('drag'); }));
