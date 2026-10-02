@@ -6,7 +6,7 @@
   <meta name="description" content="2〜4枚の分割画像を、自動で並べ替えて1枚に統合できます。" />
   <title>分割画像統合ツール</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text x=%2250%25%22 y=%2250%25%22 style=%22dominant-baseline:central;text-anchor:middle;font-size:90px;%22>&#x1f5bc;</text></svg>" />
-  <link rel="stylesheet" href="styles.css?v=20260923-21" />
+  <link rel="stylesheet" href="styles.css?v=20261002-1" />
 </head>
 <body>
   <main class="app-main">
@@ -81,7 +81,11 @@
             <h2>プレビュー</h2>
             <span id="sizeLabel">—</span>
           </div>
-          <div class="canvas-stage"><canvas id="previewCanvas"></canvas></div>
+          <p id="previewOrderHint" class="preview-order-hint">画像を左右にドラッグして並べ替えできます。</p>
+          <div class="canvas-stage">
+            <canvas id="previewCanvas" aria-label="統合画像のプレビュー" aria-describedby="previewOrderHint"></canvas>
+            <div id="previewDropTarget" class="preview-drop-target" hidden aria-hidden="true"></div>
+          </div>
           <div class="action-row">
             <span id="saveHint">分割画像から推定した順番で1枚に復元します</span>
             <button id="saveBtn" class="primary-btn">復元画像を保存</button>
@@ -95,6 +99,6 @@
   </footer>
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
-  <script src="app.js?v=20260923-12"></script>
+  <script src="app.js?v=20261002-1"></script>
 </body>
 </html>

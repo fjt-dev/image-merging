@@ -5,6 +5,91 @@ const ctx = preview.getContext('2d');
 const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
   || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 let renderTimer;
+let previewGeometry = null;
+let previewDrag = null;
+const previewTarget = $('#previewDropTarget');
+
+function moveItem(sourceId, targetId) {
+  const from = state.items.findIndex(item => item.id === sourceId);
+  const to = state.items.findIndex(item => item.id === targetId);
+  if (from < 0 || to < 0 || from === to) return;
+  const [moved] = state.items.splice(from, 1);
+  state.items.splice(to, 0, moved);
+  $('#autoOrderStatus').textContent = '';
+  buildList();
+  render();
+}
+
+// Split overlapping blend regions at their midpoint, in displayed canvas coordinates.
+function previewRegions() {
+  if (!previewGeometry) return [];
+  let x = 0;
+  return previewGeometry.images.map((entry, index, images) => {
+    const left = index === 0 ? 0 : x + previewGeometry.blend / 2;
+    x += entry.width;
+    const right = index === images.length - 1 ? x : x - previewGeometry.blend / 2;
+    x -= previewGeometry.blend;
+    return { id: entry.item.id, left, right };
+  });
+}
+
+function previewRegionAt(event) {
+  const rect = preview.getBoundingClientRect();
+  if (!rect.width || !rect.height || event.clientX < rect.left || event.clientX > rect.right
+    || event.clientY < rect.top || event.clientY > rect.bottom) return null;
+  const x = (event.clientX - rect.left) * preview.width / rect.width;
+  return previewRegions().find(region => x >= region.left && x <= region.right) || null;
+}
+
+function cancelPreviewDrag() {
+  const drag = previewDrag;
+  previewDrag = null;
+  preview.classList.remove('is-dragging');
+  previewTarget.hidden = true;
+  if (drag && preview.hasPointerCapture(drag.pointerId)) preview.releasePointerCapture(drag.pointerId);
+}
+
+preview.addEventListener('pointerdown', event => {
+  if (!event.isPrimary || event.button !== 0 || previewDrag) return;
+  const region = previewRegionAt(event);
+  if (!region) return;
+  previewDrag = { pointerId: event.pointerId, sourceId: region.id,
+    startX: event.clientX, startY: event.clientY, moved: false };
+  preview.setPointerCapture(event.pointerId);
+});
+
+preview.addEventListener('pointermove', event => {
+  if (!previewDrag || previewDrag.pointerId !== event.pointerId) return;
+  if (Math.hypot(event.clientX - previewDrag.startX, event.clientY - previewDrag.startY) > 6) {
+    previewDrag.moved = true;
+    preview.classList.add('is-dragging');
+  }
+  const region = previewRegionAt(event);
+  previewTarget.hidden = !previewDrag.moved || !region || region.id === previewDrag.sourceId;
+  if (previewTarget.hidden) return;
+  const rect = preview.getBoundingClientRect();
+  const stage = preview.parentElement;
+  const stageRect = stage.getBoundingClientRect();
+  const scale = rect.width / preview.width;
+  previewTarget.style.left = `${rect.left - stageRect.left - stage.clientLeft + stage.scrollLeft + region.left * scale}px`;
+  previewTarget.style.top = `${rect.top - stageRect.top - stage.clientTop + stage.scrollTop}px`;
+  previewTarget.style.width = `${(region.right - region.left) * scale}px`;
+  previewTarget.style.height = `${rect.height}px`;
+});
+
+preview.addEventListener('pointerup', event => {
+  if (!previewDrag || previewDrag.pointerId !== event.pointerId) return;
+  const drag = previewDrag;
+  const target = previewRegionAt(event);
+  cancelPreviewDrag();
+  if (drag.moved && target && target.id !== drag.sourceId) {
+    moveItem(drag.sourceId, target.id);
+    notify('並び順を変更しました');
+  }
+});
+preview.addEventListener('pointercancel', cancelPreviewDrag);
+preview.addEventListener('lostpointercapture', cancelPreviewDrag);
+window.addEventListener('resize', cancelPreviewDrag);
 
 if (isIOS) {
   $('#saveBtn').textContent = '写真Appに保存';
@@ -110,17 +195,11 @@ function buildList() {
     });
     const finishTouchDrag = event => {
       if (!touchTargetId || event.pointerType === 'mouse') return;
-      const from = state.items.findIndex(entry => entry.id === item.id);
-      const to = state.items.findIndex(entry => entry.id === touchTargetId);
+      const targetId = touchTargetId;
       touchTargetId = null;
       row.classList.remove('dragging-touch');
       document.querySelectorAll('.image-row.drop-target').forEach(element => element.classList.remove('drop-target'));
-      if (from >= 0 && to >= 0 && from !== to) {
-        const [moved] = state.items.splice(from, 1);
-        state.items.splice(to, 0, moved);
-        buildList();
-        render();
-      }
+      if (event.type !== 'pointercancel') moveItem(item.id, targetId);
     };
     handle.addEventListener('pointerup', finishTouchDrag);
     handle.addEventListener('pointercancel', finishTouchDrag);
@@ -147,12 +226,7 @@ function buildList() {
       event.preventDefault();
       row.classList.remove('drop-target');
       const sourceId = event.dataTransfer.getData('text/plain');
-      const from = state.items.findIndex(entry => entry.id === sourceId);
-      const to = state.items.findIndex(entry => entry.id === item.id);
-      if (from === to || from < 0) return;
-      const [moved] = state.items.splice(from, 1);
-      state.items.splice(to, 0, moved);
-      buildList(); render();
+      moveItem(sourceId, item.id);
     });
     list.append(row);
   });
@@ -286,10 +360,13 @@ function outputGeometry() {
 }
 
 function render() {
+  cancelPreviewDrag();
+  previewGeometry = null;
   clearTimeout(renderTimer);
   renderTimer = setTimeout(() => {
     if (state.items.length < 2) return;
     const geometry = outputGeometry();
+    previewGeometry = geometry;
     preview.width = geometry.width;
     preview.height = geometry.height;
     ctx.clearRect(0, 0, preview.width, preview.height);
