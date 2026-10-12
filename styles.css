@@ -58,7 +58,7 @@ button { cursor: pointer; }
 .workspace-left { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
 .controls { background: var(--lilac); scroll-margin-top: 16px; }
 .preview-panel { min-height: 680px; display: flex; flex-direction: column; border: 1px solid var(--line); background: var(--cream); box-shadow: 0 2px 8px rgba(0,0,0,.06); }
-body:not(.has-images) .preview-panel canvas, body:not(.has-images) .preview-panel .action-row { display: none; }
+body:not(.has-images) .preview-panel canvas, body:not(.has-images) .preview-panel .action-row, body:not(.has-images) .save-settings { display: none; }
 .controls h2, .preview-head h2 { margin: 0; font-size: 15px; font-weight: 600; letter-spacing: -.3px; }
 .controls section > p { margin: 6px 0 14px; font-size: 13px; line-height: 1.5; }
 .order-heading { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
@@ -118,6 +118,11 @@ body:not(.has-images) .preview-order-hint { display: none; }
 .preview-head > span { padding: 6px 10px; border-radius: 4px; background: var(--soft); font: 11px ui-monospace, SFMono-Regular, monospace; }
 .canvas-stage { position: relative; min-height: 555px; margin: 16px 0; display: flex; flex: 1; justify-content: center; align-items: center; overflow: auto; border: 1px solid var(--line); border-radius: 8px; background-color: var(--soft); background-image: linear-gradient(45deg,rgba(0,0,0,.035) 25%,transparent 25%),linear-gradient(-45deg,rgba(0,0,0,.035) 25%,transparent 25%),linear-gradient(45deg,transparent 75%,rgba(0,0,0,.035) 75%),linear-gradient(-45deg,transparent 75%,rgba(0,0,0,.035) 75%); background-size: 18px 18px; background-position: 0 0,0 9px,9px -9px,-9px 0; }
 .canvas-stage canvas { display: block; max-width: 94%; max-height: 525px; background: var(--white); box-shadow: 0 4px 16px rgba(0,0,0,.08); }
+.save-settings { margin-bottom: 16px; }
+.save-settings label { display: block; margin-bottom: 6px; font-size: 13px; font-weight: 600; }
+.save-settings input { width: 100%; min-width: 0; padding: 9px 12px; border: 1px solid var(--line); border-radius: 6px; color: var(--ink); background: var(--white); font-size: 16px; }
+.save-settings input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.save-settings p { margin: 6px 0 0; font-size: 11px; }
 .action-row { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
 .action-row > span { font-size: 11px; }
 .primary-btn { padding: 10px 24px; border: 0; border-radius: 500px; color: #f7f7f7; background: var(--black); font-size: 13px; font-weight: 500; letter-spacing: -.26px; }

@@ -440,12 +440,17 @@ $('#blendMinus').addEventListener('click', () => setBlend(state.blend - 1));
 $('#blendPlus').addEventListener('click', () => setBlend(state.blend + 1));
 $('#seamToggle').addEventListener('change', event => { state.seams = event.target.checked; render(); });
 document.querySelectorAll('[name="heightMode"]').forEach(input => input.addEventListener('change', event => { state.heightMode = event.target.value; render(); }));
-function canvasToPngFile(canvas) {
+function pngFilename(value) {
+  const name = value.trim().replace(/[<>:"/\\|?*\u0000-\u001f]/g, '-').replace(/\.png$/i, '').replace(/[. ]+$/, '');
+  return `${name || 'integrated-illustration'}.png`;
+}
+
+function canvasToPngFile(canvas, filename) {
   const dataUrl = canvas.toDataURL('image/png');
   const binary = atob(dataUrl.slice(dataUrl.indexOf(',') + 1));
   const bytes = new Uint8Array(binary.length);
   for (let index = 0; index < binary.length; index++) bytes[index] = binary.charCodeAt(index);
-  return new File([bytes], 'integrated-illustration.png', { type: 'image/png' });
+  return new File([bytes], filename, { type: 'image/png' });
 }
 
 function downloadPng(file) {
@@ -461,7 +466,10 @@ function downloadPng(file) {
 }
 
 $('#saveBtn').addEventListener('click', async () => {
-  const file = canvasToPngFile(preview);
+  const filenameInput = $('#saveFilename');
+  const filename = pngFilename(filenameInput.value);
+  filenameInput.value = filename;
+  const file = canvasToPngFile(preview, filename);
   const shareData = { files: [file] };
 
   if (isIOS && navigator.share && navigator.canShare?.(shareData)) {

@@ -6,7 +6,7 @@
   <meta name="description" content="2〜4枚の分割画像を、自動で並べ替えて1枚に統合できます。" />
   <title>分割画像統合ツール</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text x=%2250%25%22 y=%2250%25%22 style=%22dominant-baseline:central;text-anchor:middle;font-size:90px;%22>&#x1f5bc;</text></svg>" />
-  <link rel="stylesheet" href="styles.css?v=20261002-1" />
+  <link rel="stylesheet" href="styles.css?v=20261012-1" />
 </head>
 <body>
   <main class="app-main">
@@ -86,6 +86,11 @@
             <canvas id="previewCanvas" aria-label="統合画像のプレビュー" aria-describedby="previewOrderHint"></canvas>
             <div id="previewDropTarget" class="preview-drop-target" hidden aria-hidden="true"></div>
           </div>
+          <div class="save-settings">
+            <label for="saveFilename">保存するファイル名</label>
+            <input id="saveFilename" type="text" value="integrated-illustration.png" placeholder="integrated-illustration.png" aria-describedby="filenameHelp" autocomplete="off" spellcheck="false" />
+            <p id="filenameHelp">拡張子 .png は自動で付きます。空欄の場合は既定の名前で保存します。</p>
+          </div>
           <div class="action-row">
             <span id="saveHint">分割画像から推定した順番で1枚に復元します</span>
             <button id="saveBtn" class="primary-btn">復元画像を保存</button>
@@ -99,6 +104,6 @@
   </footer>
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
-  <script src="app.js?v=20261002-1"></script>
+  <script src="app.js?v=20261012-1"></script>
 </body>
 </html>
