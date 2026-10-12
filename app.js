@@ -465,6 +465,11 @@ function downloadPng(file) {
   notify('PNGを保存しました');
 }
 
+const filenameInput = $('#saveFilename');
+['focus', 'click'].forEach(eventName => {
+  filenameInput.addEventListener(eventName, () => filenameInput.select());
+});
+
 $('#saveBtn').addEventListener('click', async () => {
   const filenameInput = $('#saveFilename');
   const filename = pngFilename(filenameInput.value);
