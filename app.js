@@ -96,11 +96,23 @@ if (isIOS) {
   $('#saveHint').textContent = '共有メニューで「画像を保存」を選択してください';
 }
 
+const toast = $('#toast');
+let toastTimer;
+
 function notify(message) {
-  const toast = $('#toast');
   toast.textContent = message;
-  toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), 1800);
+  // Visible toast is aria-hidden; announce via ariaNotify(), or a persistent live region as fallback.
+  if (typeof document.ariaNotify === 'function') {
+    document.ariaNotify(message);
+  } else {
+    $('#toastLive').textContent = '';
+    requestAnimationFrame(() => { $('#toastLive').textContent = message; });
+  }
+  if (toast.showPopover) {
+    if (!toast.matches(':popover-open')) toast.showPopover();
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.hidePopover(), 1800);
+  }
 }
 
 async function loadFiles(fileList) {
@@ -442,15 +454,13 @@ $('#seamToggle').addEventListener('change', event => { state.seams = event.targe
 document.querySelectorAll('[name="heightMode"]').forEach(input => input.addEventListener('change', event => { state.heightMode = event.target.value; render(); }));
 function pngFilename(value) {
   const name = value.trim().replace(/[<>:"/\\|?*\u0000-\u001f]/g, '-').replace(/\.png$/i, '').replace(/[. ]+$/, '');
-  return `${name || 'integrated-illustration'}.png`;
+  return `${name || 'image-merging-fjtd-dev'}.png`;
 }
 
-function canvasToPngFile(canvas, filename) {
-  const dataUrl = canvas.toDataURL('image/png');
-  const binary = atob(dataUrl.slice(dataUrl.indexOf(',') + 1));
-  const bytes = new Uint8Array(binary.length);
-  for (let index = 0; index < binary.length; index++) bytes[index] = binary.charCodeAt(index);
-  return new File([bytes], filename, { type: 'image/png' });
+async function canvasToPngFile(canvas, filename) {
+  const blob = await new Promise((resolve, reject) =>
+    canvas.toBlob(result => result ? resolve(result) : reject(new Error('toBlob')), 'image/png'));
+  return new File([blob], filename, { type: 'image/png' });
 }
 
 function downloadPng(file) {
@@ -474,7 +484,7 @@ $('#saveBtn').addEventListener('click', async () => {
   const filenameInput = $('#saveFilename');
   const filename = pngFilename(filenameInput.value);
   filenameInput.value = filename;
-  const file = canvasToPngFile(preview, filename);
+  const file = await canvasToPngFile(preview, filename);
   const shareData = { files: [file] };
 
   if (isIOS && navigator.share && navigator.canShare?.(shareData)) {
