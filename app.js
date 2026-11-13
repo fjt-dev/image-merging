@@ -1,3 +1,4 @@
+const MAX_IMAGES = 20;
 const $ = (selector) => document.querySelector(selector);
 const state = { items: [], blend: 0, heightMode: 'max', seams: false };
 const preview = $('#previewCanvas');
@@ -119,8 +120,8 @@ async function loadFiles(fileList) {
   const files = [...fileList];
   const error = $('#uploadError');
   error.textContent = '';
-  if (files.length < 2 || files.length > 4) {
-    error.textContent = `2〜4枚の画像を選択してください（現在 ${files.length}枚）。`;
+  if (files.length < 2 || files.length > MAX_IMAGES) {
+    error.textContent = `2〜${MAX_IMAGES}枚の画像を選択してください（現在 ${files.length}枚）。`;
     return;
   }
   if (files.some(file => !file.type.startsWith('image/'))) {
@@ -313,15 +314,68 @@ function numberedOrder(items) {
   return parsed.sort((a, b) => a.number - b.number).map(entry => entry.item);
 }
 
-function permutations(items) {
-  if (items.length < 2) return [items];
-  return items.flatMap((item, index) =>
-    permutations(items.filter((_, position) => position !== index)).map(rest => [item, ...rest])
-  );
+// 最小コストの並び順（ハミルトン路）を求める。少数枚は厳密解、多数枚は近似解。
+function bestOrderIndices(cost) {
+  const n = cost.length;
+  const pathCost = order => order.slice(0, -1).reduce((sum, value, index) => sum + cost[value][order[index + 1]], 0);
+  if (n <= 12) {
+    const full = (1 << n) - 1;
+    const dp = new Float64Array((1 << n) * n).fill(Infinity);
+    const parent = new Int8Array((1 << n) * n).fill(-1);
+    for (let i = 0; i < n; i++) dp[(1 << i) * n + i] = 0;
+    for (let mask = 1; mask <= full; mask++) {
+      for (let last = 0; last < n; last++) {
+        const current = dp[mask * n + last];
+        if (!(mask & (1 << last)) || current === Infinity) continue;
+        for (let next = 0; next < n; next++) {
+          if (mask & (1 << next)) continue;
+          const nextMask = mask | (1 << next);
+          const value = current + cost[last][next];
+          if (value < dp[nextMask * n + next]) { dp[nextMask * n + next] = value; parent[nextMask * n + next] = last; }
+        }
+      }
+    }
+    let last = 0;
+    for (let i = 1; i < n; i++) if (dp[full * n + i] < dp[full * n + last]) last = i;
+    const order = [];
+    for (let mask = full; last !== -1;) {
+      order.push(last);
+      const previous = parent[mask * n + last];
+      mask ^= 1 << last; last = previous;
+    }
+    return order.reverse();
+  }
+  let best = null; let bestCost = Infinity;
+  for (let start = 0; start < n; start++) {
+    const order = [start]; const used = new Set(order);
+    while (order.length < n) {
+      const from = order[order.length - 1]; let pick = -1;
+      for (let i = 0; i < n; i++) if (!used.has(i) && (pick < 0 || cost[from][i] < cost[from][pick])) pick = i;
+      order.push(pick); used.add(pick);
+    }
+    let improved = true;
+    while (improved) {
+      improved = false;
+      // 2-opt（区間反転）と or-opt（1枚の移動）で改善
+      for (let i = 0; i < n && !improved; i++) for (let j = i + 1; j < n && !improved; j++) {
+        const candidate = [...order.slice(0, i), ...order.slice(i, j + 1).reverse(), ...order.slice(j + 1)];
+        if (pathCost(candidate) < pathCost(order) - 1e-9) { order.splice(0, n, ...candidate); improved = true; }
+      }
+      for (let i = 0; i < n && !improved; i++) for (let j = 0; j < n && !improved; j++) {
+        if (i === j) continue;
+        const candidate = order.filter((_, p) => p !== i);
+        candidate.splice(j, 0, order[i]);
+        if (pathCost(candidate) < pathCost(order) - 1e-9) { order.splice(0, n, ...candidate); improved = true; }
+      }
+    }
+    const total = pathCost(order);
+    if (total < bestCost) { bestCost = total; best = [...order]; }
+  }
+  return best;
 }
 
 function autoOrder() {
-  if (state.items.length < 2 || state.items.length > 4) return;
+  if (state.items.length < 2 || state.items.length > MAX_IMAGES) return;
   const button = $('#autoOrderBtn');
   const label = $('#autoOrderLabel');
   button.disabled = true;
@@ -344,13 +398,8 @@ function autoOrder() {
     const differences = state.items.map(item => state.items.map(other => item.id === other.id
       ? Infinity
       : edgeDifference(edges.get(item.id).right, edges.get(other.id).left)));
-    const positions = new Map(state.items.map((item, index) => [item.id, index]));
-    const candidates = permutations(state.items).map(order => ({
-      order,
-      score: order.slice(0, -1).reduce((sum, item, index) =>
-        sum + differences[positions.get(item.id)][positions.get(order[index + 1].id)], 0)
-    })).sort((a, b) => a.score - b.score);
-    state.items = candidates[0].order;
+    const items = state.items;
+    state.items = bestOrderIndices(differences).map(index => items[index]);
     buildList(); render();
     $('#autoOrderStatus').textContent = '自動で並べ替えました。';
     button.disabled = false;
