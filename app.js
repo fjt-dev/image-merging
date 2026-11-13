@@ -1,6 +1,7 @@
 const MAX_IMAGES = 20;
+const VISIBLE_ROWS = 4;
 const $ = (selector) => document.querySelector(selector);
-const state = { items: [], blend: 0, heightMode: 'max', seams: false };
+const state = { items: [], blend: 0, heightMode: 'max', seams: false, listExpanded: false };
 const preview = $('#previewCanvas');
 const ctx = preview.getContext('2d');
 const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
@@ -134,6 +135,7 @@ async function loadFiles(fileList) {
   }
 
   try {
+    state.listExpanded = false;
     state.items = await Promise.all(files.map((file, index) => new Promise((resolve, reject) => {
       const url = URL.createObjectURL(file);
       const image = new Image();
@@ -168,6 +170,7 @@ function buildList() {
     row.className = 'image-row';
     row.draggable = true;
     row.dataset.id = item.id;
+    if (!state.listExpanded && index >= VISIBLE_ROWS) row.hidden = true;
 
     const thumb = document.createElement('canvas');
     thumb.width = 84; thumb.height = 58;
@@ -243,6 +246,16 @@ function buildList() {
     });
     list.append(row);
   });
+  if (state.items.length > VISIBLE_ROWS) {
+    const hiddenCount = state.items.length - VISIBLE_ROWS;
+    const toggle = document.createElement('button');
+    toggle.type = 'button';
+    toggle.className = 'list-toggle';
+    toggle.setAttribute('aria-expanded', String(state.listExpanded));
+    toggle.textContent = state.listExpanded ? '折りたたむ' : `もっと見る（残り${hiddenCount}枚）`;
+    toggle.addEventListener('click', () => { state.listExpanded = !state.listExpanded; buildList(); });
+    list.append(toggle);
+  }
 }
 
 function readEdge(image, side) {
