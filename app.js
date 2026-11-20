@@ -136,17 +136,17 @@ async function loadFiles(fileList) {
 
   try {
     state.listExpanded = false;
-    state.items = await Promise.all(files.map((file, index) => new Promise((resolve, reject) => {
+    state.items = await Promise.all(files.map(async (file, index) => {
       const url = URL.createObjectURL(file);
-      const image = new Image();
-      image.onload = () => {
+      try {
+        const image = new Image();
+        image.src = url;
+        await image.decode();
+        return { id: crypto.randomUUID(), image, name: file.name, originalIndex: index };
+      } finally {
         URL.revokeObjectURL(url);
-        const id = crypto.randomUUID?.() || `${Date.now()}-${index}-${Math.random().toString(36).slice(2)}`;
-        resolve({ id, image, name: file.name, originalIndex: index });
-      };
-      image.onerror = () => { URL.revokeObjectURL(url); reject(new Error('load')); };
-      image.src = url;
-    })));
+      }
+    }));
     document.body.classList.add('has-images');
     $('#dropzoneTitle').textContent = '別の画像を選ぶ';
     $('#autoOrderBtn').disabled = false;
@@ -164,7 +164,7 @@ async function loadFiles(fileList) {
 
 function buildList() {
   const list = $('#imageList');
-  list.innerHTML = '';
+  list.replaceChildren();
   state.items.forEach((item, index) => {
     const row = document.createElement('div');
     row.className = 'image-row';
